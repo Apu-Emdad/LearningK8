@@ -1,0 +1,24 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-hpa
+spec:
+  scaleTargetRef:                # WHICH object this HPA controls
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend                # Must match the Deployment's metadata.name
+  minReplicas: 2                 # Never scale below this
+  maxReplicas: 10                # Never scale above this
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70   # Scale UP if average CPU exceeds 70% of requests
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80   # Scale UP if average memory exceeds 80% of requests

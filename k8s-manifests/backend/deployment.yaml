@@ -1,0 +1,28 @@
+apiVersion: apps/v1              # Which Kubernetes API version this object uses (Deployments = apps/v1)
+kind: Deployment                 # The type of object
+metadata:                        # Info ABOUT the Deployment object itself (not the pods)
+  name: backend                  # The Deployment's own name, used in `kubectl get deployment backend`
+  labels:
+    app: backend                 # A tag on the Deployment object itself, for organizing/filtering
+spec:                            # Desired state of the DEPLOYMENT (outer spec)
+  replicas: 3                    # How many identical pods to keep running at all times
+  selector:                      # Rule for which pods this Deployment considers "mine"
+    matchLabels:
+      app: backend               # Must match template.metadata.labels below EXACTLY
+  template:                      # Blueprint for EACH pod, copied `replicas` times
+    metadata:
+      labels:
+        app: backend             # The label stamped onto every pod (what the Service targets)
+    spec:                        # Desired state of the POD itself (inner spec)
+      containers:
+      - name: backend            # Container name, used in logs, `kubectl exec`, etc.
+        image: myregistry/backend:1.0   # Which Docker image to pull and run
+        ports:
+        - containerPort: 8080    # Documents the port the app listens on (informational only)
+        resources:
+          requests:              # MINIMUM resources guaranteed to this container (per pod)
+            cpu: "200m"          # 200 millicores = 0.2 of one CPU core
+            memory: "256Mi"
+          limits:                # MAXIMUM resources this container may use (per pod)
+            cpu: "500m"          # Exceeding this throttles the container
+            memory: "512Mi"      # Exceeding this kills it (OOMKilled) and restarts it
